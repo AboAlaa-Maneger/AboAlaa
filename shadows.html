@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الظلال | Shadows</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: #09090e;
+            color: #e0e0e0;
+            font-family: 'Tajawal', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 600px;
+            background: #12121a;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #2a2a35;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(0, 229, 255, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Typography & Neon */
+        .neon-red { color: #ff2a2a; text-shadow: 0 0 5px #ff2a2a, 0 0 15px #ff2a2a; }
+        .neon-cyan { color: #00e5ff; text-shadow: 0 0 5px #00e5ff, 0 0 15px #00e5ff; }
+        .neon-purple { color: #b000ff; text-shadow: 0 0 5px #b000ff, 0 0 15px #b000ff; }
+        .neon-green { color: #00ff66; text-shadow: 0 0 5px #00ff66, 0 0 15px #00ff66; }
+
+        h1 { font-size: 2.2em; margin-bottom: 15px; letter-spacing: 1px; }
+        h2 { font-size: 1.8em; margin-bottom: 15px; }
+        p { font-size: 1.1em; margin-bottom: 20px; line-height: 1.6; color: #bbb; }
+
+        /* Inputs & Buttons */
+        input {
+            width: 85%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #060609;
+            border: 1px solid #00e5ff;
+            color: #fff;
+            border-radius: 8px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1em;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { box-shadow: 0 0 10px #00e5ff; }
+
+        button {
+            background: #060609;
+            border: 2px solid #00e5ff;
+            color: #00e5ff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s ease;
+            margin: 5px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button:hover { background: #00e5ff; color: #000; box-shadow: 0 0 15px #00e5ff; }
+        button.danger { border-color: #ff2a2a; color: #ff2a2a; }
+        button.danger:hover { background: #ff2a2a; color: #000; box-shadow: 0 0 15px #ff2a2a; }
+        button.investigate { border-color: #b000ff; color: #b000ff; }
+        button.investigate:hover { background: #b000ff; color: #fff; box-shadow: 0 0 15px #b000ff; }
+
+        /* Lists & UI Elements */
+        ul { list-style: none; margin-bottom: 20px; padding: 0; }
+        li { background: #1a1a24; margin: 8px auto; padding: 12px; border-radius: 5px; border-right: 3px solid #00e5ff; width: 85%; display: flex; justify-content: space-between; align-items: center; }
+        
+        .hidden { display: none !important; }
+
+        .threat-container { margin: 20px 0; text-align: right; }
+        .threat-level { width: 100%; background: #222; border-radius: 10px; height: 18px; overflow: hidden; border: 1px solid #444; margin-top: 5px; }
+        .threat-fill { height: 100%; width: 0%; background: #ff2a2a; box-shadow: 0 0 10px #ff2a2a; transition: width 0.5s ease; }
+
+        .crime-card { background: #0d0d12; border: 1px solid #ff2a2a; padding: 20px; border-radius: 8px; text-align: right; margin-bottom: 20px; box-shadow: inset 0 0 20px rgba(255, 42, 42, 0.05); }
+        .hint-box { background: #1a1a24; padding: 12px; margin-top: 10px; border-right: 4px solid #b000ff; border-radius: 4px; font-size: 1.05em; color: #ddd; }
+
+        .player-vote-btn { background: #1a1a24; border: 1px solid #444; color: #fff; margin: 5px; width: 45%; display: inline-block; padding: 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .player-vote-btn:hover { border-color: #ff2a2a; background: #331111; color: #fff; }
+        .player-vote-btn.dead { text-decoration: line-through; opacity: 0.5; pointer-events: none; border-color: #222; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        
+        <!-- Screen 1: Setup Players -->
+        <div id="setup-screen">
+            <div style="margin-bottom: 20px;">
+                <svg viewBox="0 0 300 120" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="5" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                        <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <!-- Main Title -->
+                    <text x="50%" y="45%" text-anchor="middle" dominant-baseline="middle" font-family="'Tajawal', sans-serif" font-size="38" font-weight="900" fill="#00e5ff" filter="url(#glow-cyan)" letter-spacing="2">الظلال | SHADOWS</text>
+                    
+                    <!-- AboAlaa Signature -->
+                    <text x="50%" y="85%" text-anchor="middle" dominant-baseline="middle" font-family="'Tajawal', sans-serif" font-size="16" font-weight="700" fill="#ff2a2a" filter="url(#glow-red)" letter-spacing="4">By AboAlaa</text>
+                    
+                    <!-- Decorative Lines -->
+                    <line x1="20%" y1="105%" x2="80%" y2="105%" stroke="#2a2a35" stroke-width="2" />
+                    <circle cx="50%" cy="105%" r="4" fill="#00e5ff" filter="url(#glow-cyan)" />
+                </svg>
+            </div>
+            <p>أدخل أسماء المحققين والمشتبه بهم (الحد الأدنى 4)</p>
+            <input type="text" id="playerName" placeholder="اسم اللاعب..." onkeypress="handleEnter(event)">
+            <br>
+            <button onclick="addPlayer()">إضافة لاعب</button>
+            <ul id="playersList"></ul>
+            <button class="danger hidden" id="startBtn" onclick="startGame()">بدء الجلسة</button>
+        </div>
+
+        <!-- Screen 2: Pass Device -->
+        <div id="pass-screen" class="hidden">
+            <h2 class="neon-purple">السرية مطلوبة</h2>
+            <p>قم بتسليم الجهاز فوراً إلى:<br><br><strong class="neon-cyan" style="font-size: 2em;" id="currentPlayerPass"></strong></p>
+            <br>
+            <button onclick="showRole()">عرض الدور السري</button>
+        </div>
+
+        <!-- Screen 3: Show Role -->
+        <div id="role-screen" class="hidden">
+            <h2 id="roleTitle"></h2>
+            <p id="roleDesc" style="font-size: 1.3em; margin-top: 20px;"></p>
+            <br><br>
+            <button class="danger" onclick="nextPlayerOrCrime()">إخفاء الدور للمتابعة</button>
+        </div>
+
+        <!-- Screen 4: Crime Reveal & Investigation -->
+        <div id="crime-screen" class="hidden">
+            <h1 class="neon-red">مسرح الجريمة</h1>
+            
+            <div class="crime-card">
+                <h2 id="crimeTitle" class="neon-red"></h2>
+                <p id="crimeDesc" style="color: #ccc; font-size: 1.1em;"></p>
+                <h3 class="neon-purple" style="margin-top: 20px; font-size: 1.2em;">الأدلة المستخرجة:</h3>
+                <div id="crimeHints"></div>
+            </div>
+
+            <button class="investigate" onclick="openVoting()">بدء التحقيق والتصويت</button>
+        </div>
+
+        <!-- Screen 5: Voting & Elimination -->
+        <div id="voting-screen" class="hidden">
+            <h2 class="neon-purple">لجنة التحقيق</h2>
+            <p>تناقشوا واستنتجوا. من هو القاتل؟ استبعاد شخص خاطئ سيزيد من مستوى الخطر.</p>
+            
+            <div class="threat-container">
+                <span style="color: #ff2a2a; font-weight: bold;">مستوى الخطر (Threat Level)</span>
+                <div class="threat-level"><div class="threat-fill" id="threatBar"></div></div>
+            </div>
+
+            <div id="votingButtons" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Screen 6: End Game -->
+        <div id="end-screen" class="hidden">
+            <h1 id="endTitle"></h1>
+            <p id="endDesc" style="font-size: 1.3em;"></p>
+            <button class="neon-cyan" onclick="location.reload()" style="margin-top: 20px;">بدء قضية جديدة</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Game Logic ---
+        let players = [];
+        let playerRoles = [];
+        let currentPlayerIndex = 0;
+        let threatLevel = 0;
+        let maxThreat = 3; // 3 wrong guesses = Game Over
+        let currentCrime = {};
+        let gameEnded = false;
+
+        // 20 High-Logic Crimes Array
+        const crimes = [
+            {
+                title: "شفرة الخزنة الميتة (The Safety Vault)",
+                desc: "تم إيجاد الضحية داخل خزنته الذكية. لا يوجد أثر عنف، ولكن سجلات السيرفر (Log) توضح إدخال كلمة السر خطأ 3 مرات عمدًا لتفعيل نظام الإغلاق التلقائي، وحبس الضحية بالداخل.",
+                hints: ["القاتل شخص يفهم منطق واجهات الويب (Front-end Logic).", "تم تنفيذ الاختراق باستخدام ثغرة في كود الـ JavaScript الخاص بالخزنة.", "القاتل تعمد ترك 'تلميح' برمجي يسخر من تصميم الخزنة."]
+            },
+            {
+                title: "الترسيب القاتل (Suspended Precipitation)",
+                desc: "في مختبر الكيمياء، مات الضحية مخنوقاً بغاز سام. الغاز لم يكن في الغرفة، بل نتج عن عملية ترسيب لمحلول معلق (Suspension) تُرِك بذكاء في دورق زجاجي لينشط بعد ساعتين.",
+                hints: ["القاتل خبير في الكيمياء المعملية وتفاعلات الترسيب.", "القاتل تواجد في المعمل أثناء تجهيز المعدات الزجاجية.", "التفاعل كان يحتاج لقياس دقيق للحرارة ليحدث في الوقت المناسب."]
+            },
+            {
+                title: "جراحة العظام الوهمية (The Orthopedic Sabotage)",
+                desc: "توفي مريض أثناء جراحة عظام بسيطة. التحقيق كشف أن الشريحة المعدنية المستخدمة تم تعديلها مسبقاً لتتفاعل مع مجال مغناطيسي داخل غرفة العمليات وتسبب صدمة.",
+                hints: ["القاتل على دراية عميقة بالطب وجراحة العظام.", "الأداة تم تعديلها بدقة متناهية لا يمكن لغير مختص ملاحظتها.", "شخص ما زار مستودع الأدوات الطبية ليلة البارحة."]
+            },
+            {
+                title: "خوارزمية الإدانة (The NLP Frame-up)",
+                desc: "تم تسريب رسائل تهديد من بريد مدير تنفيذي أدت لانتحاره. التحليل الجنائي أثبت أن الرسائل لم تُكتب بشرياً، بل ولّدتها خوارزمية معالجة لغات طبيعية (NLP) دربت خصيصاً لتقليد أسلوبه.",
+                hints: ["القاتل مبرمج ضليع في علوم الحاسوب والذكاء الاصطناعي.", "تم تدريب النموذج (Model) باستخدام آلاف النصوص من أبحاث الضحية.", "الكود المصدري وُجد مخفياً داخل ملف نصي بسيط."]
+            },
+            {
+                title: "بكتيريا التربة المظلمة (Soil Microbiology)",
+                desc: "أُصيب خبير زراعي بمرض نادر أودى بحياته. الفحص أثبت تعرضه لسلالة معدلة من بكتيريا التربة، تم وضعها عمداً في عينات السماد الخاصة بمشروعه البحثي.",
+                hints: ["القاتل لديه معرفة واسعة بالزراعة وميكروبيولوجيا التربة.", "القاتل استخدم سياسة التسميد العضوي كغطاء للجريمة.", "العينة الملوثة تتطلب بيئة رطبة لتتكاثر، وهو ما وفره القاتل."]
+            },
+            {
+                title: "النواة المنطقية (Logic Core Meltdown)",
+                desc: "تم تدمير السيرفر الرئيسي للشركة، مما أدى لاحتجاز حارس الأمن وموته اختناقاً بنظام إطفاء الحرائق. النظام أُغلق إثر تشغيل لعبة 'منطقية' خبيثة استهلكت كل موارد المعالج.",
+                hints: ["القاتل يحب الألغاز والألعاب التي تعتمد على الاستنتاج.", "اللعبة الخبيثة تم برمجتها بواجهة مظلمة وتأثيرات نيون لتبدو كأنها مشروع ترفيهي.", "القاتل لم يكن موجوداً في المبنى، نفذ الجريمة عبر رابط مرسل للضحية."]
+            },
+            {
+                title: "تزوير السياسة الزراعية (The Policy Fraud)",
+                desc: "تم اغتيال مسؤول عن سياسات التصدير الزراعي المصري. تم العثور على أوراق امتحانات قديمة وسياسات زراعية محترقة بجواره، الجاني استخدمها كوقود لإخفاء دليل أهم.",
+                hints: ["القاتل يدرس أو مطلع على قوانين السياسة الزراعية المصرية.", "تم دس سم زراعي بطيء المفعول في طعام المسؤول قبل أسبوع.", "القاتل يجيد تحليل الأنماط، حيث اختار توقيت الجريمة بناءً على أوقات انشغال الحراس."]
+            },
+            {
+                title: "الحقنة المزدوجة (The Double Syringe)",
+                desc: "في غرف الإفاقة، توقفت عضلة قلب المريض. لا أثر لسموم، لكن الجاني استخدم تكتيكاً طبياً بخلط عقارين آمنين منفردين، يسببان سكتة إذا أُخذا معاً بترتيب معين.",
+                hints: ["القاتل يعرف بروتوكولات الأدوية وتأثيرها المتضارب.", "القاتل استخدم معرفة الضحية الطبية ضده.", "أحد الأدوية تم تبديل ملصقه بمهارة."]
+            },
+            {
+                title: "الاستنتاج العكسي (Reverse Deduction)",
+                desc: "وُجد المحقق السابق مقتولاً، وفي يده ورقة تحتوي على لغز استنتاجي معقد يوجه التهمة لثلاثة أشخاص مختلفين. القاتل صمم اللغز ليشتت الانتباه عن نفسه.",
+                hints: ["القاتل يعشق ألعاب الاستنتاج الاجتماعي والـ Social Deduction.", "اللغز مصمم بحيث تكون الإجابة المنطقية الأولى خاطئة دائماً.", "القاتل ترك توقيعه المخفي داخل اللغز."]
+            },
+            {
+                title: "ثغرة الواجهة (The Front-End Illusion)",
+                desc: "تم تحويل أموال طائلة وقتل المحاسب للتغطية. الضحية لم يلاحظ أنه كان يعمل على واجهة ويب مزيفة بالكامل (Phishing) تم تصميمها بـ HTML/CSS باحترافية لتبدو كالنظام الأصلي.",
+                hints: ["القاتل يتقن تصميم الواجهات ومحاكاتها برمجياً.", "تم زرع سكربت خبيث يعترض أوامر الـ JavaScript.", "القاتل استخدم ألوان وخطوط النظام الأصلي بدقة متناهية."]
+            },
+            { title: "الزرع المرفوض (Rejected Implant)", desc: "مريض عظام توفي بسبب رفض جسمه لمفصل صناعي. الفحص أثبت أن المفصل تم طلاؤه بمادة كيميائية تمنع التئام العظم.", hints: ["القاتل تعامل مع أدوات الجراحة والمفاصل الصناعية.", "الطلاء الكيميائي يتطلب معرفة مختبرية دقيقة.", "القاتل كان يراقب حالة المريض من خلال السجلات الطبية."] },
+            { title: "عدوى الجذور (Root Infection)", desc: "محاصيل حقل تجريبي ماتت ومعها الحارس الذي تنشق غازاً ناتجاً عن تعفن الجذور السريع. تم استخدام محفز نمو زراعي بجرعة زائدة قاتلة.", hints: ["القاتل يفهم ميكانيكية نمو النباتات وتأثير المحفزات.", "الغاز لم يكن ليظهر لولا دمج المحفز مع سماد معين.", "شخص ما دخل الحقل ليلاً وعبث بنظام الري."] },
+            { title: "الكلمة المفقودة (The Missing Token)", desc: "تم اغتيال مهندس بيانات بعد أن اكتشف تلاعباً في نظام الذكاء الاصطناعي. القاتل استخدم تقنية Tokenization في الـ NLP لحذف كلمات معينة من تقارير الأمان لتمرير الثغرة.", hints: ["القاتل يعرف كيف تفهم الحواسيب النصوص.", "تم التلاعب بقواعد البيانات وحذف سجلات الأخطاء.", "القاتل يمتلك صلاحيات وصول للنظام الأساسي."] },
+            { title: "غرفة الضغط (Pressure Chamber)", desc: "مات الضحية في غرفة ضغط معملية. القاتل عدل كود الـ JavaScript المسؤول عن مراقبة الضغط ليعرض قراءات طبيعية بينما كان الضغط يرتفع.", hints: ["القاتل جمع بين البرمجة ومعرفة الفيزياء المعملية.", "الواجهة كانت تظهر أن كل شيء طبيعي.", "القاتل نفذ التعديل من جهازه الشخصي."] },
+            { title: "كسر الروتين (Pattern Breaker)", desc: "القاتل تتبع الروتين اليومي للضحية في دراسة الامتحانات السابقة، واكتشف نمطاً يجعله يتواجد في المكتبة وحيداً في ساعة معينة.", hints: ["القاتل ممتاز في تحليل الأنماط الإحصائية والبيانات.", "القاتل استخدم أوراق امتحانات قديمة كطعم لاستدراج الضحية.", "تم قطع الكهرباء عن المكتبة بدقة تزامنت مع الحادثة."] },
+            { title: "السم السيبراني (Cyber Toxin)", desc: "باحث زراعي مات مسموماً. القاتل لم يقترب منه، بل اخترق نظام التحكم في المناخ بالصوبة الزراعية ليطلق الغاز السام المخزن لتعقيم التربة.", hints: ["القاتل دمج مهارات البرمجة بالاختراق مع الزراعة.", "نظام التبريد تم تعطيله قبل إطلاق الغاز.", "هناك كود برمجي غير مكتمل ترك كدليل للتمويه."] },
+            { title: "مشرط العتمة (Scalpel in the Dark)", desc: "طبيب عظام قُتل في عيادته بمشرطه الخاص. تم إطفاء الأنوار وتفعيل نظام قفل إلكتروني معقد صممه القاتل لمنع الهروب.", hints: ["القاتل يعرف تشريح الجسم ليوجه ضربة واحدة قاتلة.", "القاتل يمتلك مهارات في الدوائر الإلكترونية والبرمجة.", "الأداة أعيدت لمكانها بدقة شديدة."] },
+            { title: "لغة الآلة (Machine Translation)", desc: "تمت ترجمة رسالة تحذيرية بشكل خاطئ عمداً باستخدام خوارزمية ذكاء اصطناعي، مما أرسل الضحية للفخ. الترجمة عكست المعنى تماماً.", hints: ["القاتل يفهم كيف يخدع خوارزميات الترجمة الآلية.", "القاتل يتحدث عدة لغات ويفهم اللغويات.", "تم تغذية النموذج بنصوص مضللة مسبقاً."] },
+            { title: "اختبار الطرد المركزي (Centrifuge Sabotage)", desc: "في معمل الكيمياء، تم التلاعب بجهاز الطرد المركزي ليفقد توازنه وينفجر أثناء فصل الضحية لعينات زراعية معقدة.", hints: ["القاتل تواجد في المعمل لمعايرة الأجهزة.", "القاتل يعلم التوقيت الدقيق لتشغيل الجهاز.", "تم إزالة قطعة صغيرة جداً من الجهاز للتسبب في الكارثة."] },
+            { title: "اللغز الأخير (The Final Core)", desc: "الضحية مات أثناء محاولته حل لغز برمجي ومنطقي مكون من 5 مراحل لفتح باب غرفته. القاتل صمم اللغز ليكون مستحيل الحل في الوقت المحدد.", hints: ["القاتل محترف في تصميم الألغاز المنطقية وألعاب التفكير.", "القاتل استمتع برؤية الضحية يحاول حل الكود المصدري.", "المرحلة الأخيرة من اللغز كانت تحتوي على حلقة مفرغة (Infinite Loop)."] }
+        ];
+
+        // --- Core Functions ---
+        function handleEnter(e) { if (e.key === 'Enter') addPlayer(); }
+
+        function addPlayer() {
+            const input = document.getElementById('playerName');
+            const name = input.value.trim();
+            if (name && !players.find(p => p.name === name)) {
+                players.push({ name: name, isAlive: true, role: {} });
+                input.value = '';
+                updatePlayerList();
+            }
+        }
+
+        function updatePlayerList() {
+            const list = document.getElementById('playersList');
+            list.innerHTML = '';
+            players.forEach((p, index) => {
+                list.innerHTML += `<li>${p.name} <button style="width: auto; padding: 5px 10px; font-size: 0.9em; border-color: #ff2a2a; color: #ff2a2a;" onclick="removePlayer(${index})">X</button></li>`;
+            });
+            const btn = document.getElementById('startBtn');
+            players.length >= 4 ? btn.classList.remove('hidden') : btn.classList.add('hidden');
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            updatePlayerList();
+        }
+
+        function startGame() {
+            assignRoles();
+            currentCrime = crimes[Math.floor(Math.random() * crimes.length)];
+            document.getElementById('setup-screen').classList.add('hidden');
+            showPassScreen();
+        }
+
+        function assignRoles() {
+            const numPlayers = players.length;
+            let rolePool = ["قاتل (المُدبر)", "محقّق"];
+            
+            // Add custom roles based on logic games & CS
+            if(numPlayers >= 5) rolePool.push("الهاكر (يقرأ الأنماط)");
+            if(numPlayers >= 6) rolePool.push("طبيب شرعي");
+            if(numPlayers >= 8) rolePool.push("قاتل مساعد");
+
+            // Fill the rest with Citizens
+            while(rolePool.length < numPlayers) {
+                rolePool.push("مشتبه به (مواطن)");
+            }
+
+            // Shuffle Roles
+            rolePool = rolePool.sort(() => Math.random() - 0.5);
+
+            players.forEach((p, i) => {
+                let rTitle = rolePool[i];
+                let rDesc, rColor;
+
+                if(rTitle.includes("قاتل")) {
+                    rDesc = "أنت القاتل. هدفك هو التلاعب بالنقاش، توجيه الاتهامات للأبرياء، والبقاء للنهاية دون أن تُكتشف.";
+                    rColor = "neon-red";
+                } else if(rTitle.includes("محقّق")) {
+                    rDesc = "أنت محقّق خبير. مهمتك اكتشاف القاتل من خلال تحليل الأدلة والاستماع للتفاصيل الدقيقة.";
+                    rColor = "neon-purple";
+                } else if(rTitle.includes("الهاكر")) {
+                    rDesc = "أنت خبير برمجة. تستطيع قراءة الأنماط وتحليل السلوك. استخدم مهاراتك لكشف الكذابين.";
+                    rColor = "neon-cyan";
+                } else if(rTitle.includes("طبيب شرعي")) {
+                    rDesc = "أنت طبيب شرعي متخصص. تفهم الجرائم وتفاصيلها الطبية. ابحث عن التناقضات.";
+                    rColor = "neon-green";
+                } else if(rTitle.includes("قاتل مساعد")) {
+                    rDesc = "أنت يد القاتل اليمنى. تعرف الحقيقة وتساعده دون أن تكتشفك. كن حذراً.";
+                    rColor = "neon-red";
+                } else {
+                    rDesc = "أنت مشتبه به عادي. ليس لديك معلومات خاصة. استخدم الحدس والمنطق للبحث عن القاتل.";
+                    rColor = "neon-cyan";
+                }
+
+                p.role = { title: rTitle, desc: rDesc, color: rColor };
+            });
+        }
+
+        function showPassScreen() {
+            document.getElementById('pass-screen').classList.remove('hidden');
+            document.getElementById('currentPlayerPass').textContent = players[currentPlayerIndex].name;
+        }
+
+        function showRole() {
+            const player = players[currentPlayerIndex];
+            document.getElementById('pass-screen').classList.add('hidden');
+            document.getElementById('role-screen').classList.remove('hidden');
+            document.getElementById('roleTitle').textContent = player.role.title;
+            document.getElementById('roleTitle').className = player.role.color;
+            document.getElementById('roleDesc').textContent = player.role.desc;
+        }
+
+        function nextPlayerOrCrime() {
+            currentPlayerIndex++;
+            if(currentPlayerIndex < players.length) {
+                document.getElementById('role-screen').classList.add('hidden');
+                showPassScreen();
+            } else {
+                document.getElementById('role-screen').classList.add('hidden');
+                showCrimeScene();
+            }
+        }
+
+        function showCrimeScene() {
+            document.getElementById('crime-screen').classList.remove('hidden');
+            document.getElementById('crimeTitle').textContent = currentCrime.title;
+            document.getElementById('crimeDesc').textContent = currentCrime.desc;
+            
+            let hintsHtml = '';
+            currentCrime.hints.forEach(hint => {
+                hintsHtml += `<div class="hint-box">💡 ${hint}</div>`;
+            });
+            document.getElementById('crimeHints').innerHTML = hintsHtml;
+        }
+
+        function openVoting() {
+            document.getElementById('crime-screen').classList.add('hidden');
+            document.getElementById('voting-screen').classList.remove('hidden');
+            updateThreatBar();
+            updateVotingButtons();
+        }
+
+        function updateThreatBar() {
+            const threatPercentage = (threatLevel / maxThreat) * 100;
+            document.getElementById('threatBar').style.width = threatPercentage + '%';
+        }
+
+        function updateVotingButtons() {
+            let votingHtml = '';
+            players.forEach((p, index) => {
+                const deadClass = !p.isAlive ? 'dead' : '';
+                votingHtml += `<button class="player-vote-btn ${deadClass}" onclick="voteOut(${index})">${p.name}</button>`;
+            });
+            document.getElementById('votingButtons').innerHTML = votingHtml;
+        }
+
+        function voteOut(index) {
+            const votedPlayer = players[index];
+            const killerIndex = players.findIndex(p => p.role.title.includes("قاتل"));
+            
+            if(index === killerIndex) {
+                endGame(true, votedPlayer.name);
+            } else {
+                votedPlayer.isAlive = false;
+                threatLevel++;
+                
+                if(threatLevel >= maxThreat) {
+                    endGame(false, "القاتل");
+                } else {
+                    updateThreatBar();
+                    updateVotingButtons();
+                }
+            }
+        }
+
+        function endGame(didWin, revealedName) {
+            gameEnded = true;
+            document.getElementById('voting-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            
+            if(didWin) {
+                document.getElementById('endTitle').textContent = "🎉 تم حل القضية بنجاح!";
+                document.getElementById('endTitle').className = "neon-green";
+                document.getElementById('endDesc').textContent = `تم كشف القاتل: ${revealedName}. العدالة انتصرت!`;
+            } else {
+                document.getElementById('endTitle').textContent = "☠️ القاتل تمكن من الهروب!";
+                document.getElementById('endTitle').className = "neon-red";
+                document.getElementById('endDesc').textContent = `مستوى الخطر وصل للحد الأقصى. القاتل: ${revealedName} لم يُكتشف.`;
+            }
+        }
+    </script>
+</body>
+</html>
